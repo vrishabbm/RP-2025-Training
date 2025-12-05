@@ -16,6 +16,8 @@ import java.lang.reflect.Field;
 
 import org.frogforce503.robot2025.fields.FieldConfig;
 import org.frogforce503.robot2025.fields.FieldConfig.VENUE;
+import org.frogforce503.robot2025.hardware.RobotHardware;
+import org.frogforce503.robot2025.hardware.RobotHardwareCompBot;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -32,12 +34,18 @@ public class Robot extends LoggedRobot {
 
 
   private static Timer timer = new Timer();
+  public static RobotHardware bot;
   
   /*
    * Robot Constructor 
    */
   public Robot() {
     RobotStatus.getInstance().setCurrentRobot(RobotStatus.Bot.CompBot);
+
+    bot = switch (RobotStatus.getInstance().getCurrentRobot()) {
+      case CompBot -> new RobotHardwareCompBot();
+      default -> new RobotHardwareCompBot();
+    };
   }
  
  

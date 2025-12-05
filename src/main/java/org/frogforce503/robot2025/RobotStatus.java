@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class RobotStatus {
     private static final RobotStatus instance = new RobotStatus();
-    private Bot currentRobot;
+    private Bot currentRobot = Bot.CompBot;
     private GameState gameState = GameState.DISABLED;
     private AllianceColor allianceColor = AllianceColor.RED;
     private boolean allianceColorBeenOverriden = false;
