@@ -114,8 +114,8 @@ public class ArmIOSpark implements ArmIO {
     }
 
     @Override
-    public void runPosition(double positionRadians, double feedforward) {
-        controller.setReference(positionRadians, ControlType.kPosition, closedLoopSlot, feedforward);
+    public void runPosition(double positionRads, double feedforward) {
+        controller.setReference(positionRads, ControlType.kPosition, closedLoopSlot, feedforward);
     }
 
     @Override

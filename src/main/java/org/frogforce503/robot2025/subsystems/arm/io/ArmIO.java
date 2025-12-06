@@ -17,8 +17,8 @@ public interface ArmIO {
 
     record ArmIOData(
         boolean connected,
-        double positionInputs,
-        double velocityInputsPerSecond,
+        double positionRads,
+        double velocityRadsPerSecond,
         double appliedVolts,
         double currentAmps,
         double tempCelsius
@@ -32,7 +32,7 @@ public interface ArmIO {
 
     public void runVoltage(double voltage);
 
-    public void runPosition(double positionRadians, double feedforward);
+    public void runPosition(double positionRads, double feedforward);
 
     public void stop();
 

@@ -1,5 +1,6 @@
 package org.frogforce503.robot2025.subsystems.arm;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 
 public class ArmConstants {
@@ -12,5 +13,8 @@ public class ArmConstants {
     public static double MAX_POSITION = Units.degreesToRadians(135);
     public static double MIN_POSITION = Units.degreesToRadians(-90);
 
-
+    public static Constraints FAST_PROFILE_CONSTRAINTS = new Constraints(
+        Units.degreesToRadians(500), 
+        Units.degreesToRadians(1400)
+    );
 }
