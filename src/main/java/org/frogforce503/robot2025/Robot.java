@@ -35,6 +35,7 @@ public class Robot extends LoggedRobot {
 
   private static Timer timer = new Timer();
   public static RobotHardware bot;
+  private RobotContainer robotContainer;
   
   /*
    * Robot Constructor 
@@ -71,7 +72,7 @@ public class Robot extends LoggedRobot {
 
     FieldConfig.getInstance().setVenue(VENUE.GIRLS_COMP);
 
-    RobotContainer.init();
+    robotContainer = new RobotContainer();
     Logger.start();
 
     // Adjust loop overrun warning timeout
@@ -103,7 +104,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     // RobotContainer.intake.idle();
-    RobotContainer.autoChooser.startAuto();
+    robotContainer.autoChooser.startAuto();
 
     timer.restart();
   }
@@ -123,13 +124,13 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledInit() {
-    // RobotContainer.drive.brake();
-    // RobotContainer.drive.coastOut();
+    // robotContainer.drive.brake();
+    // robotContainer.drive.coastOut();
   }
 
   @Override
   public void disabledPeriodic() {
-    // RobotContainer.autoChooser.periodic();
+    // robotContainer.autoChooser.periodic();
   }
 
   @Override

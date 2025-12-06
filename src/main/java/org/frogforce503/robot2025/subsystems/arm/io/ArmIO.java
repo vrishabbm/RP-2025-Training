@@ -17,8 +17,8 @@ public interface ArmIO {
 
     record ArmIOData(
         boolean connected,
-        double positionDegrees,
-        double velocityDegreesPerSecond,
+        double positionInputs,
+        double velocityInputsPerSecond,
         double appliedVolts,
         double currentAmps,
         double tempCelsius
@@ -32,13 +32,13 @@ public interface ArmIO {
 
     public void runVoltage(double voltage);
 
-    public void runPosition(double positionDegrees, double feedforward);
-
-    public void runVelocity(double velocityDegreesPerSecond, double feedforward);
+    public void runPosition(double positionRadians, double feedforward);
 
     public void stop();
 
     public void setPID(double kP, double kI, double kD);
+
+    public void setPIDSlot(int slot);
 
     public void setBrakeMode(boolean brake);
 }

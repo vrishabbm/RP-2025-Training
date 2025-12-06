@@ -1,10 +1,10 @@
 package org.frogforce503.robot2025.hardware;
 
-import org.frogforce503.robot2025.hardware.subsystem_constants.ArmConstants;
+import org.frogforce503.robot2025.hardware.subsystem_hardware.ArmHardware;
 
 public class RobotHardwareCompBot extends RobotHardware {
     public RobotHardwareCompBot() {
-        armConstants = new ArmConstants(
+        armHardware = new ArmHardware(
             10,
             100.0 / 12.0,
 

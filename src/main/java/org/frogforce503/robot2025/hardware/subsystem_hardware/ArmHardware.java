@@ -1,8 +1,8 @@
-package org.frogforce503.robot2025.hardware.subsystem_constants;
+package org.frogforce503.robot2025.hardware.subsystem_hardware;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
-public record ArmConstants (
+public record ArmHardware (
     int id,
     double mechanismRatio,
 
