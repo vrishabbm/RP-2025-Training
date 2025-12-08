@@ -99,6 +99,7 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     // SignalLogger.enableAutoLogging(false); // use and see if works
     CommandScheduler.getInstance().run();
+    robotContainer.periodic();
   }
 
   @Override
