@@ -67,6 +67,6 @@ public class RobotStatus {
     }
 
     public enum Bot {
-        Automatic, CompBot, PracticeBot, ProgrammingBot
+        Automatic, CompBot, PracticeBot, ProgrammingBot, SimBot
     }
 }
