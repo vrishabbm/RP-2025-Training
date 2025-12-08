@@ -4,6 +4,7 @@ import org.frogforce503.robot2025.auto.AutoChooser;
 import org.frogforce503.robot2025.subsystems.arm.Arm;
 import org.frogforce503.robot2025.subsystems.arm.io.ArmIOSim;
 import org.frogforce503.robot2025.subsystems.arm.io.ArmIOSpark;
+import org.frogforce503.robot2025.visualizers.Visualizer2d;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -20,7 +21,7 @@ public class RobotContainer{
 
   // Miscellaneous
   public final AutoChooser autoChooser = new AutoChooser();
-  public final Visualizer visualizer = new Visualizer();
+  public final Visualizer2d visualizer2d;
 
   public RobotContainer() {
     switch (RobotStatus.getInstance().getCurrentRobot()) {
@@ -44,23 +45,24 @@ public class RobotContainer{
         );
     }
 
+    visualizer2d = new Visualizer2d();
     configureButtonBindings();
   }
 
   private void configureButtonBindings() {
-    Trigger leftStickPushedUp = new Trigger(() -> (driver.getLeftY() > 0.2));
-    Trigger leftStickPushedDown = new Trigger(() -> (driver.getLeftY() < -0.2));
+    Trigger leftStickPushedUp = new Trigger(() -> (driver.getLeftY() < -0.2));
+    Trigger leftStickPushedDown = new Trigger(() -> (driver.getLeftY() > 0.2));
 
     leftStickPushedUp.onTrue(
-      Commands.runOnce(() -> arm.setArmGoal(Units.degreesToRadians(50)), arm)
+      Commands.runOnce(() -> arm.setArmGoal(Units.degreesToRadians(50)), arm).withName("Arm Up")
     );
 
     leftStickPushedDown.onTrue(
-      Commands.runOnce(() -> arm.setArmGoal(Units.degreesToRadians(-50)), arm)
+      Commands.runOnce(() -> arm.setArmGoal(Units.degreesToRadians(-50)), arm).withName("Arm Down")
     );
   }
 
   public void periodic() {
-    visualizer.update(arm.getPosition());
+    visualizer2d.update(arm.getPosition());
   }
 }

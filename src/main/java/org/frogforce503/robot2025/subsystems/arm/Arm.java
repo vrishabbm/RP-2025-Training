@@ -1,11 +1,14 @@
 package org.frogforce503.robot2025.subsystems.arm;
 
+import org.frogforce503.lib.logging.LoggedTunableNumber;
 import org.frogforce503.robot2025.Robot;
 import org.frogforce503.robot2025.hardware.subsystem_hardware.ArmHardware;
 import org.frogforce503.robot2025.subsystems.arm.io.ArmIO;
+import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.frogforce503.robot2025.subsystems.arm.io.ArmIOInputsAutoLogged;
+
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -36,11 +39,30 @@ public class Arm extends SubsystemBase {
 
     // Logic
     private boolean runClosedLoop = false;
-    private boolean inBrakeMode = false;
+    private boolean inBrakeMode = true;
     private boolean atGoal = false;
 
     // Logging
-    private LoggedNetworkBoolean brakeModeOverride = new LoggedNetworkBoolean("Arm/Brake Mode Override", false);
+    private LoggedNetworkBoolean brakeModeOverride = new LoggedNetworkBoolean("Arm/Brake Mode Override", true);
+
+    private LoggedTunableNumber kP = new LoggedTunableNumber("Arm/Tuning/kP", armHardware.kP());
+    private LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Tuning/kI", armHardware.kI());
+    private LoggedTunableNumber kD = new LoggedTunableNumber("Arm/Tuning/kD", armHardware.kD());
+
+    private LoggedTunableNumber kS = new LoggedTunableNumber("Arm/Tuning/kS", armHardware.kS());
+    private LoggedTunableNumber kG = new LoggedTunableNumber("Arm/Tuning/kG", armHardware.kG());
+    private LoggedTunableNumber kV = new LoggedTunableNumber("Arm/Tuning/kV", armHardware.kV());
+    private LoggedTunableNumber kA = new LoggedTunableNumber("Arm/Tuning/kA", armHardware.kA());
+
+    private LoggedTunableNumber maxVelocity = new LoggedTunableNumber(
+        "Arm/Tuning/Max Velocity",
+        ArmConstants.FAST_PROFILE_CONSTRAINTS.maxVelocity
+    );
+
+    private LoggedTunableNumber maxAcceleration = new LoggedTunableNumber(
+        "Arm/Tuning/Max Acceleration",
+        ArmConstants.FAST_PROFILE_CONSTRAINTS.maxAcceleration
+    );
 
     public Arm(ArmIO armIO) {
         this.armIO = armIO;
@@ -60,25 +82,50 @@ public class Arm extends SubsystemBase {
         if (runClosedLoop) {
             double previousVelocity = setpointState.velocity;
 
-            setpointState = profile.calculate(0.02, setpointState, goalState);
+            setpointState = profile.calculate(LoggedRobot.defaultPeriodSecs, setpointState, goalState);
 
-            double acceleration = (setpointState.velocity - previousVelocity) / 0.02;
+            double acceleration = (setpointState.velocity - previousVelocity) / LoggedRobot.defaultPeriodSecs;
             double feedforwardOutput = feedforward.calculate(setpointState.position, setpointState.velocity, acceleration);
             
             armIO.runPosition(setpointState.position, feedforwardOutput);
         }
 
         // Brake Mode
-        if (RobotState.isDisabled() && brakeModeOverride.get()) {
-            if (!inBrakeMode) {
-                armIO.setBrakeMode(true);
-                inBrakeMode = true;
+        if (RobotState.isDisabled() && !brakeModeOverride.get()) {
+            if (inBrakeMode) {
+                armIO.setBrakeMode(false);
+                inBrakeMode = false;
             }
         } else {
             if (!inBrakeMode) {
                 armIO.setBrakeMode(true);
                 inBrakeMode = true;
             }
+        }
+
+        // Tuning
+        if (kP.hasChanged(kP.hashCode()) || kI.hasChanged(kI.hashCode()) || kD.hasChanged(kD.hashCode())) {
+            armIO.setPID(kP.get(), kI.get(), kD.get());
+        }
+
+        if (kS.hasChanged(kS.hashCode()) || kG.hasChanged(kG.hashCode())
+            || kV.hasChanged(kV.hashCode()) || kA.hasChanged(kA.hashCode())) {
+            feedforward = new ArmFeedforward(
+                kS.get(),
+                kG.get(),
+                kV.get(),
+                kA.get()
+            );
+        }
+
+        if (maxVelocity.hasChanged(maxVelocity.hashCode())
+            || maxAcceleration.hasChanged(maxAcceleration.hashCode())) {
+            profile = new TrapezoidProfile(
+                new TrapezoidProfile.Constraints(
+                    maxVelocity.get(),
+                    maxAcceleration.get()
+                )
+            );
         }
 
         // Logging
@@ -89,6 +136,8 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/Closed Loop/Goal Velocity", goalState.velocity);
 
         Logger.recordOutput("Arm/At Goal", atGoal);
+        Logger.recordOutput("Arm/In Brake Mode", inBrakeMode);
+        Logger.recordOutput("Arm/Current Command", getCurrentCommand() == null ? "None" : getCurrentCommand().getName());
     }
 
     // Public Methods
@@ -134,7 +183,7 @@ public class Arm extends SubsystemBase {
     }
 
     public boolean atVelocity(double targetVelocityRadsPerSec, double toleranceRadsPerSec) {
-        return Math.abs(getPosition() - targetVelocityRadsPerSec) <= toleranceRadsPerSec;
+        return Math.abs(getVelocity() - targetVelocityRadsPerSec) <= toleranceRadsPerSec;
     }
 
     public boolean atGoal() {
