@@ -55,7 +55,7 @@ public class Visualizer2d {
     }
     
     public void update(double armAngleRadians) {
-        Logger.recordOutput("Viz 2d", superstructureMechanism);
         armLigament.setAngle(Rotation2d.fromRadians(armAngleRadians + armAngleOffset));
+        Logger.recordOutput("Viz 2d", superstructureMechanism);
     }
 }

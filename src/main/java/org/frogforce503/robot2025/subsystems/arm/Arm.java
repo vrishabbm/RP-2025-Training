@@ -13,6 +13,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -43,35 +44,35 @@ public class Arm extends SubsystemBase {
     private boolean atGoal = false;
 
     // Logging
-    private LoggedNetworkBoolean brakeModeOverride = new LoggedNetworkBoolean("Arm/Brake Mode Override", true);
-    private LoggedNetworkBoolean tuningModeOverride = new LoggedNetworkBoolean("Arm/Tuning Mode Override", false);
+    private LoggedNetworkBoolean brakeModeOverride = new LoggedNetworkBoolean("/Tuning/Arm/Enable Brake Mode", true);
+    private LoggedNetworkBoolean tuningModeOverride = new LoggedNetworkBoolean("/Tuning/Arm/Enable Tuning Mode", false);
 
-    private LoggedTunableNumber kP = new LoggedTunableNumber("Arm/Tuning/kP", armHardware.kP());
-    private LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Tuning/kI", armHardware.kI());
-    private LoggedTunableNumber kD = new LoggedTunableNumber("Arm/Tuning/kD", armHardware.kD());
+    private LoggedTunableNumber kP = new LoggedTunableNumber("Arm/PID/kP", armHardware.kP());
+    private LoggedTunableNumber kI = new LoggedTunableNumber("Arm/PID/kI", armHardware.kI());
+    private LoggedTunableNumber kD = new LoggedTunableNumber("Arm/PID/kD", armHardware.kD());
 
-    private LoggedTunableNumber kS = new LoggedTunableNumber("Arm/Tuning/kS", armHardware.kS());
-    private LoggedTunableNumber kG = new LoggedTunableNumber("Arm/Tuning/kG", armHardware.kG());
-    private LoggedTunableNumber kV = new LoggedTunableNumber("Arm/Tuning/kV", armHardware.kV());
-    private LoggedTunableNumber kA = new LoggedTunableNumber("Arm/Tuning/kA", armHardware.kA());
+    private LoggedTunableNumber kS = new LoggedTunableNumber("Arm/FF/kS", armHardware.kS());
+    private LoggedTunableNumber kG = new LoggedTunableNumber("Arm/FF/kG", armHardware.kG());
+    private LoggedTunableNumber kV = new LoggedTunableNumber("Arm/FF/kV", armHardware.kV());
+    private LoggedTunableNumber kA = new LoggedTunableNumber("Arm/FF/kA", armHardware.kA());
 
     private LoggedTunableNumber maxVelocity = new LoggedTunableNumber(
-        "Arm/Tuning/Max Velocity",
+        "Arm/Profile/Max Velocity",
         ArmConstants.FAST_PROFILE_CONSTRAINTS.maxVelocity
     );
 
     private LoggedTunableNumber maxAcceleration = new LoggedTunableNumber(
-        "Arm/Tuning/Max Acceleration",
+        "Arm/Profile/Max Acceleration",
         ArmConstants.FAST_PROFILE_CONSTRAINTS.maxAcceleration
     );
 
     private LoggedTunableNumber positionSetpoint = new LoggedTunableNumber(
-        "Arm/Tuning/Position Setpoint", 
+        "Arm/Setpoint/Position Setpoint", 
         ArmConstants.START_POSITION
     );
 
     private LoggedTunableNumber velocitySetpoint = new LoggedTunableNumber(
-        "Arm/Tuning/Velocity Setpoint", 
+        "Arm/Setpoint/Velocity Setpoint", 
         0
     );
 
@@ -141,8 +142,10 @@ public class Arm extends SubsystemBase {
             );
         }
 
-        if (positionSetpoint.hasChanged(positionSetpoint.hashCode()) || velocitySetpoint.hasChanged(velocitySetpoint.hashCode())) {
-            setArmGoal(positionSetpoint.get(), velocitySetpoint.get());
+        if (RobotState.isEnabled() && 
+            (positionSetpoint.hasChanged(positionSetpoint.hashCode()) || velocitySetpoint.hasChanged(velocitySetpoint.hashCode()))
+        ) {
+            setArmGoal(Units.degreesToRadians(positionSetpoint.get()), Units.degreesToRadians(velocitySetpoint.get()));
         } 
 
         // Clamp Setpoint to Safe Range

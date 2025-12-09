@@ -15,7 +15,7 @@ import lombok.Setter;
  * value not in dashboard.
  */
 public class LoggedTunableNumber implements DoubleSupplier {
-  private final String tableKey = "/AdvantageKit";
+  private final String tableKey = "/Tuning";
 
   private final String key;
   private boolean hasDefault = false;
