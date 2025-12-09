@@ -2,14 +2,14 @@ package org.frogforce503.robot2025.subsystems.arm;
 
 import org.frogforce503.lib.logging.LoggedTunableNumber;
 import org.frogforce503.robot2025.Robot;
-import org.frogforce503.robot2025.hardware.subsystem_hardware.ArmHardware;
+import org.frogforce503.robot2025.hardware.subsystem.ArmHardware;
 import org.frogforce503.robot2025.subsystems.arm.io.ArmIO;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.frogforce503.robot2025.subsystems.arm.io.ArmIOInputsAutoLogged;
 
-
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
@@ -44,6 +44,7 @@ public class Arm extends SubsystemBase {
 
     // Logging
     private LoggedNetworkBoolean brakeModeOverride = new LoggedNetworkBoolean("Arm/Brake Mode Override", true);
+    private LoggedNetworkBoolean tuningModeOverride = new LoggedNetworkBoolean("Arm/Tuning Mode Override", false);
 
     private LoggedTunableNumber kP = new LoggedTunableNumber("Arm/Tuning/kP", armHardware.kP());
     private LoggedTunableNumber kI = new LoggedTunableNumber("Arm/Tuning/kI", armHardware.kI());
@@ -62,6 +63,16 @@ public class Arm extends SubsystemBase {
     private LoggedTunableNumber maxAcceleration = new LoggedTunableNumber(
         "Arm/Tuning/Max Acceleration",
         ArmConstants.FAST_PROFILE_CONSTRAINTS.maxAcceleration
+    );
+
+    private LoggedTunableNumber positionSetpoint = new LoggedTunableNumber(
+        "Arm/Tuning/Position Setpoint", 
+        ArmConstants.START_POSITION
+    );
+
+    private LoggedTunableNumber velocitySetpoint = new LoggedTunableNumber(
+        "Arm/Tuning/Velocity Setpoint", 
+        0
     );
 
     public Arm(ArmIO armIO) {
@@ -90,7 +101,7 @@ public class Arm extends SubsystemBase {
             armIO.runPosition(setpointState.position, feedforwardOutput);
         }
 
-        // Brake Mode
+        // Dashboard Overrides
         if (RobotState.isDisabled() && !brakeModeOverride.get()) {
             if (inBrakeMode) {
                 armIO.setBrakeMode(false);
@@ -102,6 +113,8 @@ public class Arm extends SubsystemBase {
                 inBrakeMode = true;
             }
         }
+
+        setTuningMode(tuningModeOverride.get());
 
         // Tuning
         if (kP.hasChanged(kP.hashCode()) || kI.hasChanged(kI.hashCode()) || kD.hasChanged(kD.hashCode())) {
@@ -127,6 +140,13 @@ public class Arm extends SubsystemBase {
                 )
             );
         }
+
+        if (positionSetpoint.hasChanged(positionSetpoint.hashCode()) || velocitySetpoint.hasChanged(velocitySetpoint.hashCode())) {
+            setArmGoal(positionSetpoint.get(), velocitySetpoint.get());
+        } 
+
+        // Clamp Setpoint to Safe Range
+        goalState.position = MathUtil.clamp(goalState.position, ArmConstants.MIN_POSITION, ArmConstants.MAX_POSITION);
 
         // Logging
         Logger.recordOutput("Arm/Running Closed Loop", runClosedLoop);
@@ -189,4 +209,22 @@ public class Arm extends SubsystemBase {
     public boolean atGoal() {
         return atGoal;
     }
+
+     // Private Methods
+     private void setTuningMode(boolean tuning) {
+        kP.setTuningMode(tuning);
+        kI.setTuningMode(tuning);
+        kD.setTuningMode(tuning);
+
+        kS.setTuningMode(tuning);
+        kG.setTuningMode(tuning);
+        kV.setTuningMode(tuning);
+        kA.setTuningMode(tuning);
+
+        maxVelocity.setTuningMode(tuning);
+        maxAcceleration.setTuningMode(tuning);
+
+        positionSetpoint.setTuningMode(tuning);
+        velocitySetpoint.setTuningMode(tuning);
+     }
 }

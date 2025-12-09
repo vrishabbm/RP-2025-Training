@@ -1,4 +1,4 @@
-package org.frogforce503.robot2025.hardware.subsystem_hardware;
+package org.frogforce503.robot2025.hardware.subsystem;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 

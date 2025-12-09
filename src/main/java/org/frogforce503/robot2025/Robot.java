@@ -41,7 +41,7 @@ public class Robot extends LoggedRobot {
    * Robot Constructor 
    */
   public Robot() {
-    RobotStatus.getInstance().setCurrentRobot(RobotStatus.Bot.CompBot);
+    RobotStatus.getInstance().setCurrentRobot(RobotStatus.Bot.SimBot);
 
     bot = switch (RobotStatus.getInstance().getCurrentRobot()) {
       case CompBot -> new RobotHardwareCompBot();

@@ -17,7 +17,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import org.frogforce503.robot2025.Robot;
-import org.frogforce503.robot2025.hardware.subsystem_hardware.ArmHardware;
+import org.frogforce503.robot2025.hardware.subsystem.ArmHardware;
 import org.frogforce503.robot2025.subsystems.arm.ArmConstants;
 
 public class ArmIOSpark implements ArmIO {
@@ -48,8 +48,8 @@ public class ArmIOSpark implements ArmIO {
 
         config.absoluteEncoder
             .zeroOffset(armHardware.zeroOffset())
-            .positionConversionFactor(2 * Math.PI) // rotations -> radians
-            .velocityConversionFactor(2 * Math.PI / 60); // RPM -> radians per second
+            .positionConversionFactor((1 / armHardware.mechanismRatio()) * 2 * Math.PI) // rotations -> radians
+            .velocityConversionFactor((1 / armHardware.mechanismRatio()) * 2 * Math.PI / 60); // RPM -> radians per second
 
         config.closedLoop
             .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
@@ -97,11 +97,7 @@ public class ArmIOSpark implements ArmIO {
     }
 
     @Override
-    public void reset() {
-        config.absoluteEncoder.zeroOffset(encoder.getPosition());
-
-        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    }
+    public void reset() {}
 
     @Override
     public void runPercentOutput(double percentOutput) {

@@ -1,8 +1,9 @@
 package org.frogforce503.robot2025.subsystems.arm.io;
 
-import org.frogforce503.robot2025.hardware.subsystem_hardware.ArmHardware;
 import org.frogforce503.robot2025.Robot;
+import org.frogforce503.robot2025.hardware.subsystem.ArmHardware;
 import org.frogforce503.robot2025.subsystems.arm.ArmConstants;
+import org.littletonrobotics.junction.LoggedRobot;
 
 import com.revrobotics.sim.SparkMaxSim;
 
@@ -42,10 +43,10 @@ public class ArmIOSim extends ArmIOSpark{
         
         // Apply physics
         armSim.setInputVoltage(appliedVolts);
-        armSim.update(0.02);
+        armSim.update(LoggedRobot.defaultPeriodSecs);
 
         // Update motor simulation
-        motorSim.iterate(armSim.getVelocityRadPerSec(), RobotController.getBatteryVoltage(), 0.02);
+        motorSim.iterate(armSim.getVelocityRadPerSec(), RobotController.getBatteryVoltage(), LoggedRobot.defaultPeriodSecs);
 
         inputs.data =
             new ArmIOData(

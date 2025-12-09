@@ -1,6 +1,7 @@
 package org.frogforce503.robot2025.visualizers;
 
 import org.frogforce503.robot2025.subsystems.arm.ArmConstants;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
@@ -36,7 +37,7 @@ public class Visualizer2d {
             new LoggedMechanismLigament2d(
                 "Elevator", 
                 elevatorInitialHeight, 
-                armAngleOffset,
+                90,
                 4.0,
                 new Color8Bit(Color.kFirstBlue)
             )
@@ -46,13 +47,15 @@ public class Visualizer2d {
             new LoggedMechanismLigament2d(
                 "Arm",
                 armLength,
-                Units.radiansToDegrees(ArmConstants.START_POSITION), // Initial relative angle (set in update)
+                ArmConstants.START_POSITION, // Initial relative angle (set in update)
                 4.0,
-                new Color8Bit(Color.kFirstRed))
+                new Color8Bit(Color.kFirstRed)
+            )
         );
     }
     
     public void update(double armAngleRadians) {
-        armLigament.setAngle(Rotation2d.fromRadians(armAngleRadians));
+        Logger.recordOutput("Viz 2d", superstructureMechanism);
+        armLigament.setAngle(Rotation2d.fromRadians(armAngleRadians + armAngleOffset));
     }
 }
