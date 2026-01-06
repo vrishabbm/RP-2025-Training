@@ -10,12 +10,7 @@ public class RobotHardwareCompBot extends RobotHardware {
 
             false, 0.0,
             2.5, 0.0, 0.0,
-            0.2, 1.0, 0.0, 0.0,
-            
-            new edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints(
-                90.0,
-                180.0
-            )
+            0.2, 1.0, 0.0, 0.0
         );
     }
 }

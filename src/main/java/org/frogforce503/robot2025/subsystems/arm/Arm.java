@@ -92,23 +92,23 @@ public class Arm extends SubsystemBase {
 
         // Control Loop
         if (runClosedLoop) {
-            double previousVelocity = setpointState.velocity;
+            double previousVelocity = setpointState.velocity; // save last setpoint velocity before it updated by the profile
 
-            setpointState = profile.calculate(LoggedRobot.defaultPeriodSecs, setpointState, goalState);
+            setpointState = profile.calculate(LoggedRobot.defaultPeriodSecs, setpointState, goalState); // update setpoint based on profile towards goal
 
             double acceleration = (setpointState.velocity - previousVelocity) / LoggedRobot.defaultPeriodSecs;
-            double feedforwardOutput = feedforward.calculate(setpointState.position, setpointState.velocity, acceleration);
+            double feedforwardOutput = feedforward.calculate(setpointState.position, setpointState.velocity, acceleration); // calculate feedforward based on new setpoint
             
             armIO.runPosition(setpointState.position, feedforwardOutput);
         }
 
         // Dashboard Overrides
-        if (RobotState.isDisabled() && !brakeModeOverride.get()) {
+        if (RobotState.isDisabled() && !brakeModeOverride.get()) { // Only allow disabling brake mode while robot is disabled
             if (inBrakeMode) {
                 armIO.setBrakeMode(false);
                 inBrakeMode = false;
             }
-        } else {
+        } else { // Enable brake mode during enabled or if override is true
             if (!inBrakeMode) {
                 armIO.setBrakeMode(true);
                 inBrakeMode = true;
@@ -117,13 +117,23 @@ public class Arm extends SubsystemBase {
 
         setTuningMode(tuningModeOverride.get());
 
-        // Tuning
-        if (kP.hasChanged(kP.hashCode()) || kI.hasChanged(kI.hashCode()) || kD.hasChanged(kD.hashCode())) {
-            armIO.setPID(kP.get(), kI.get(), kD.get());
+        // Dashboard Tuning
+        if (kP.hasChanged(kP.hashCode()) || 
+            kI.hasChanged(kI.hashCode()) || 
+            kD.hasChanged(kD.hashCode())
+        ) { // If any PID value changed in the dashboard, update the motor with new gains
+            armIO.setPID(
+                kP.get(), 
+                kI.get(), 
+                kD.get()
+            );
         }
 
-        if (kS.hasChanged(kS.hashCode()) || kG.hasChanged(kG.hashCode())
-            || kV.hasChanged(kV.hashCode()) || kA.hasChanged(kA.hashCode())) {
+        if (kS.hasChanged(kS.hashCode()) || 
+            kG.hasChanged(kG.hashCode()) || 
+            kV.hasChanged(kV.hashCode()) || 
+            kA.hasChanged(kA.hashCode())
+        ) { // If any FF gain changed in the dashboard, update the feedforward variable with new gains
             feedforward = new ArmFeedforward(
                 kS.get(),
                 kG.get(),
@@ -132,8 +142,9 @@ public class Arm extends SubsystemBase {
             );
         }
 
-        if (maxVelocity.hasChanged(maxVelocity.hashCode())
-            || maxAcceleration.hasChanged(maxAcceleration.hashCode())) {
+        if (maxVelocity.hasChanged(maxVelocity.hashCode())|| 
+            maxAcceleration.hasChanged(maxAcceleration.hashCode())
+        ) { // If profile constraints changed in the dashboard, update the trapezoidal profile with new constraints
             profile = new TrapezoidProfile(
                 new TrapezoidProfile.Constraints(
                     maxVelocity.get(),
@@ -144,7 +155,7 @@ public class Arm extends SubsystemBase {
 
         if (RobotState.isEnabled() && 
             (positionSetpoint.hasChanged(positionSetpoint.hashCode()) || velocitySetpoint.hasChanged(velocitySetpoint.hashCode()))
-        ) {
+        ) { // If setpoints changed in the dashboard, update the goal state with new setpoints
             setArmGoal(Units.degreesToRadians(positionSetpoint.get()), Units.degreesToRadians(velocitySetpoint.get()));
         } 
 
@@ -164,14 +175,25 @@ public class Arm extends SubsystemBase {
     }
 
     // Public Methods
+    /**
+     * @return The current position of the arm in radians. Arm angle is zero when horizontal.
+     */
     public double getPosition() {
         return inputs.data.positionRads();
     }
 
+    /**
+     * @return The current velocity of the arm in radians per second.
+     */
     public double getVelocity() {
         return inputs.data.velocityRadsPerSecond();
     }
 
+    /**
+     * Set the Arm goal state with position in radians and velocity as 0 radians per second.
+     * 
+     * @param positionRads The goal position in radians.
+     */
     public void setArmGoal(double positionRads) {
         runClosedLoop = true;
 
@@ -179,6 +201,12 @@ public class Arm extends SubsystemBase {
         goalState.velocity = 0;
     }
 
+    /**
+     * Set the Arm goal state with position in radians and velocity in radians per second.
+     * 
+     * @param positionRads The goal position in radians.
+     * @param velocityRadsPerSecond The goal velocity in radians per second.
+     */
     public void setArmGoal(double positionRads, double velocityRadsPerSecond) {
         runClosedLoop = true;
 
@@ -186,29 +214,55 @@ public class Arm extends SubsystemBase {
         goalState.velocity = velocityRadsPerSecond;
     }
 
+    /**
+     * Run the arm in percent output mode.
+     * @param percentOutput The percent output to run the arm at (-1.0 to 1.0).
+     */
     public void runPercentOutput(double percentOutput) {
-        runClosedLoop = false;
+        runClosedLoop = false; // disable closed-loop control when running open-loop control like percent output
         armIO.runPercentOutput(percentOutput);
     }
 
+    /**
+     * Run the arm in voltage mode.
+     * @param voltage The voltage to run the arm at.
+     */
     public void runVoltage(double voltage) {
-        runClosedLoop = false;
+        runClosedLoop = false; // disable closed-loop control when running open-loop control like voltage
         armIO.runVoltage(voltage);
     }
 
+    /**
+     * Stop the arm motor.
+     */
     public void stop() {
         runClosedLoop = false;
         armIO.stop();
     }
 
+    /**
+     * Check if the arm is at a given position within a tolerance.
+     * @param targetPositionRads 
+     * @param toleranceRads
+     * @return True if the arm is at the target position within the tolerance, false otherwise.
+     */
     public boolean atPosition(double targetPositionRads, double toleranceRads) {
         return Math.abs(getPosition() - targetPositionRads) <= toleranceRads;
     }
 
+    /**
+     * Check if the arm is at a given velocity within a tolerance.
+     * @param targetVelocityRadsPerSec 
+     * @param toleranceRadsPerSec
+     * @return True if the arm is at the target velocity within the tolerance, false otherwise.
+     */
     public boolean atVelocity(double targetVelocityRadsPerSec, double toleranceRadsPerSec) {
         return Math.abs(getVelocity() - targetVelocityRadsPerSec) <= toleranceRadsPerSec;
     }
 
+    /**
+     * @return True if the arm is at the goal position and velocity, false otherwise.
+     */
     public boolean atGoal() {
         return atGoal;
     }

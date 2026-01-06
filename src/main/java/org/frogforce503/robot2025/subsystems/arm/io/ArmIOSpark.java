@@ -11,6 +11,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import lombok.Getter;
 
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -48,8 +49,8 @@ public class ArmIOSpark implements ArmIO {
 
         config.absoluteEncoder
             .zeroOffset(armHardware.zeroOffset())
-            .positionConversionFactor((1 / armHardware.mechanismRatio()) * 2 * Math.PI) // rotations -> radians
-            .velocityConversionFactor((1 / armHardware.mechanismRatio()) * 2 * Math.PI / 60); // RPM -> radians per second
+            .positionConversionFactor(2 * Math.PI) // rotations -> radians
+            .velocityConversionFactor(2 * Math.PI / 60); // RPM -> radians per second
 
         config.closedLoop
             .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
@@ -130,7 +131,7 @@ public class ArmIOSpark implements ArmIO {
 
     @Override
     public void setPIDSlot(int slot) {
-        closedLoopSlot = switch (slot) {
+        closedLoopSlot = switch (MathUtil.clamp(slot, 0, 3)) {
             case 0 -> ClosedLoopSlot.kSlot0;
             case 1 -> ClosedLoopSlot.kSlot1;
             case 2 -> ClosedLoopSlot.kSlot2;

@@ -2,6 +2,9 @@ package org.frogforce503.robot2025.subsystems.arm.io;
 
 import org.littletonrobotics.junction.AutoLog;
 
+/**
+ * ArmIO is an interface that defines the methods for using the physical electronics on the arm.
+ */
 public interface ArmIO {
     @AutoLog
     class ArmIOInputs {
@@ -15,6 +18,18 @@ public interface ArmIO {
         );
     }
 
+    /**
+     * ArmIOData is a record that holds the inputs from the arm subsystem.
+     * Inputs are data given to us by the hardware on the arm that we need in our code.
+     * 
+     * @param connected whether the arm motor is connected with no faults/errors
+     * @param positionRads the position of the arm in radians
+     * @param velocityRadsPerSecond the velocity of the arm in radians per second
+     * @param appliedVolts the voltage applied to the arm motor
+     * @param currentAmps the current draw of the arm motor in amps
+     * @param tempCelsius the temperature of the arm motor in celsius
+     * 
+     */
     record ArmIOData(
         boolean connected,
         double positionRads,
