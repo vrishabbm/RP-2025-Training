@@ -15,7 +15,7 @@ public class ArmConstants {
     public static double MIN_POSITION = Units.degreesToRadians(-90); // Radians
 
     public static Constraints FAST_PROFILE_CONSTRAINTS = new Constraints(
-        Units.degreesToRadians(500), // Velocity Radians/second
-        Units.degreesToRadians(1400) // Acceleration Radians/second^2
+        Units.degreesToRadians(480), // Velocity Radians/second
+        Units.degreesToRadians(960) // Acceleration Radians/second^2
     );
 }

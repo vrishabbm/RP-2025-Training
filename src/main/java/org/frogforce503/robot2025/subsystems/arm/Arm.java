@@ -2,7 +2,7 @@ package org.frogforce503.robot2025.subsystems.arm;
 
 import org.frogforce503.lib.logging.LoggedTunableNumber;
 import org.frogforce503.robot2025.Robot;
-import org.frogforce503.robot2025.hardware.subsystem.ArmHardware;
+import org.frogforce503.robot2025.hardware.subsystemhardware.ArmHardware;
 import org.frogforce503.robot2025.subsystems.arm.io.ArmIO;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -86,6 +86,9 @@ public class Arm extends SubsystemBase {
         armIO.updateInputs(inputs);
         Logger.processInputs("Arm/Inputs", inputs);
 
+        // Clamp Setpoint to Safe Range
+        goalState.position = MathUtil.clamp(goalState.position, ArmConstants.MIN_POSITION, ArmConstants.MAX_POSITION);
+
         // At Goal Check
         atGoal = atPosition(goalState.position, ArmConstants.POSITION_TOLERANCE)
             && atVelocity(goalState.velocity, ArmConstants.VELOCITY_TOLERANCE);
@@ -158,9 +161,6 @@ public class Arm extends SubsystemBase {
         ) { // If setpoints changed in the dashboard, update the goal state with new setpoints
             setArmGoal(Units.degreesToRadians(positionSetpoint.get()), Units.degreesToRadians(velocitySetpoint.get()));
         } 
-
-        // Clamp Setpoint to Safe Range
-        goalState.position = MathUtil.clamp(goalState.position, ArmConstants.MIN_POSITION, ArmConstants.MAX_POSITION);
 
         // Logging
         Logger.recordOutput("Arm/Running Closed Loop", runClosedLoop);

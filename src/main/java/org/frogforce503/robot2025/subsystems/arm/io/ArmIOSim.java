@@ -1,7 +1,7 @@
 package org.frogforce503.robot2025.subsystems.arm.io;
 
 import org.frogforce503.robot2025.Robot;
-import org.frogforce503.robot2025.hardware.subsystem.ArmHardware;
+import org.frogforce503.robot2025.hardware.subsystemhardware.ArmHardware;
 import org.frogforce503.robot2025.subsystems.arm.ArmConstants;
 import org.littletonrobotics.junction.LoggedRobot;
 
@@ -18,7 +18,7 @@ public class ArmIOSim extends ArmIOSpark{
     private ArmHardware armHardware = Robot.bot.armHardware;
 
     private final DCMotor motorModel = DCMotor.getNEO(1);
-    private final double momentOfInertia = 0.95; // kg * m^2
+    private final double momentOfInertia = 0.85; // kg * m^2
     private final double length = Units.inchesToMeters(19.0); 
 
     public ArmIOSim() {
@@ -35,6 +35,9 @@ public class ArmIOSim extends ArmIOSpark{
             true,
             ArmConstants.START_POSITION
         );
+
+        motorSim.setPosition(ArmConstants.START_POSITION);
+        motorSim.setVelocity(0);
     }
 
     @Override
@@ -47,6 +50,8 @@ public class ArmIOSim extends ArmIOSpark{
 
         // Update motor simulation
         motorSim.iterate(armSim.getVelocityRadPerSec(), RobotController.getBatteryVoltage(), LoggedRobot.defaultPeriodSecs);
+        motorSim.setPosition(armSim.getAngleRads());
+        motorSim.setVelocity(armSim.getVelocityRadPerSec());
 
         inputs.data =
             new ArmIOData(

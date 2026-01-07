@@ -18,7 +18,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import org.frogforce503.robot2025.Robot;
-import org.frogforce503.robot2025.hardware.subsystem.ArmHardware;
+import org.frogforce503.robot2025.hardware.subsystemhardware.ArmHardware;
 import org.frogforce503.robot2025.subsystems.arm.ArmConstants;
 
 public class ArmIOSpark implements ArmIO {

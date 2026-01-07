@@ -1,4 +1,4 @@
-package org.frogforce503.robot2025.hardware.subsystem;
+package org.frogforce503.robot2025.hardware.subsystemhardware;
 
 public record ArmHardware (
     int id,

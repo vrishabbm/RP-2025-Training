@@ -18,7 +18,7 @@ public class Visualizer2d {
     private final double elevatorInitialHeight = Units.inchesToMeters(28);
 
     private final double armLength = Units.inchesToMeters(19);
-    private final double armAngleOffset = Units.degreesToRadians(-85);
+    private final double armAngleOffset = Units.degreesToRadians(-90);
 
     // Mechanism/Ligaments
     private final LoggedMechanism2d superstructureMechanism = new LoggedMechanism2d(
