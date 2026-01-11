@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
     // Constants
-    private ArmHardware armHardware = Robot.bot.armHardware;
+    private ArmHardware armHardware = Robot.bot.getArmHardware();
 
     // IO
     private ArmIO armIO;

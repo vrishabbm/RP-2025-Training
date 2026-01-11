@@ -32,7 +32,7 @@ public class ArmIOSpark implements ArmIO {
     private ClosedLoopSlot closedLoopSlot = ClosedLoopSlot.kSlot0;
 
     public ArmIOSpark() {
-        armHardware = Robot.bot.armHardware;
+        armHardware = Robot.bot.getArmHardware();
 
         motor = new SparkMax(armHardware.id(), MotorType.kBrushless);
         encoder = motor.getAbsoluteEncoder();
@@ -42,7 +42,7 @@ public class ArmIOSpark implements ArmIO {
         controller = motor.getClosedLoopController();
 
         // Configuration
-        config.inverted(Robot.bot.armHardware.inverted());
+        config.inverted(armHardware.inverted());
         config.idleMode(IdleMode.kBrake);
         config.smartCurrentLimit(ArmConstants.CURRENT_LIMIT);
         config.voltageCompensation(12);

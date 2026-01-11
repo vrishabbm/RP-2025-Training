@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 public class ArmIOSim extends ArmIOSpark{
     private SparkMaxSim motorSim;
     private SingleJointedArmSim armSim;
-    private ArmHardware armHardware = Robot.bot.armHardware;
+    private ArmHardware armHardware = Robot.bot.getArmHardware();
 
     private final DCMotor motorModel = DCMotor.getNEO(1);
     private final double momentOfInertia = 0.85; // kg * m^2
